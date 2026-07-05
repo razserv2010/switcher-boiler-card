@@ -149,6 +149,21 @@ class SwitcherBoilerCard extends LitElement {
       #sun-hit {
         cursor: pointer;
       }
+      .sun-hit {
+        position: absolute;
+        top: 45.7%;
+        left: 50%;
+        width: 22%;
+        aspect-ratio: 1;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        z-index: 5;
+      }
       .timer-menu {
         position: absolute;
         top: calc(100% + 10px);
@@ -352,10 +367,20 @@ class SwitcherBoilerCard extends LitElement {
 
     return html`
       <ha-card>
-        <div class="wrap">
+        <div class="wrap" dir="ltr">
           <div class="panel ${dark ? "night" : "day"}">
             <div class="sheen1"></div>
             <div class="sheen2"></div>
+            <button
+              class="sun-hit"
+              aria-label="הדלקה/כיבוי"
+              @mousedown=${this._startPress}
+              @mouseup=${this._endPress}
+              @mouseleave=${this._cancelPress}
+              @touchstart=${this._startPress}
+              @touchend=${this._endPress}
+              @touchcancel=${this._cancelPress}
+            ></button>
             <svg viewBox="0 0 340 210">
               <defs>
                 <filter id="sb-glow" x="-100%" y="-100%" width="300%" height="300%">
@@ -391,17 +416,6 @@ class SwitcherBoilerCard extends LitElement {
                 transform="translate(170,96)"
                 filter="${on ? "url(#sb-glow)" : "none"}"
               >
-                <circle
-                  id="sun-hit"
-                  r="20"
-                  fill="transparent"
-                  @mousedown=${this._startPress}
-                  @mouseup=${this._endPress}
-                  @mouseleave=${this._cancelPress}
-                  @touchstart=${this._startPress}
-                  @touchend=${this._endPress}
-                  @touchcancel=${this._cancelPress}
-                ></circle>
                 <circle r="12" fill="${sunBg}" stroke="${ringColor}" stroke-width="2" />
                 <g stroke="${ringColor}" stroke-width="2.2" stroke-linecap="round">
                   <line x1="0" y1="-19" x2="0" y2="-25" />
@@ -427,43 +441,42 @@ class SwitcherBoilerCard extends LitElement {
                 ></circle>
               </g>
 
-              ${this.config.wifi_entity
-                ? html`
-                    <g
-                      transform="translate(46,164)"
-                      filter="${wifi ? "url(#sb-glow-sm)" : "none"}"
-                    >
-                      <path
-                        d="M -10 3 Q 0 -9 10 3"
-                        fill="none"
-                        stroke="${wifiColor}"
-                        stroke-width="2.2"
-                        stroke-linecap="round"
-                      />
-                      <path
-                        d="M -5 6 Q 0 -1 5 6"
-                        fill="none"
-                        stroke="${wifiColor}"
-                        stroke-width="2.2"
-                        stroke-linecap="round"
-                      />
-                      <circle cx="0" cy="9" r="1.6" fill="${wifiColor}" />
-                    </g>
-                  `
-                : ""}
-
-              <text
-                x="296"
-                y="172"
-                text-anchor="end"
-                font-size="12"
-                fill="${logoColor}"
-                font-family="sans-serif"
-                letter-spacing="0.5"
+              <g
+                transform="translate(46,164)"
+                filter="${this.config.wifi_entity && wifi ? "url(#sb-glow-sm)" : "none"}"
               >
-                switcher
-              </text>
-              <circle cx="242" cy="167" r="3.5" fill="#c0392b" />
+                <path
+                  d="M -10 3 Q 0 -9 10 3"
+                  fill="none"
+                  stroke="${wifiColor}"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M -5 6 Q 0 -1 5 6"
+                  fill="none"
+                  stroke="${wifiColor}"
+                  stroke-width="2.2"
+                  stroke-linecap="round"
+                />
+                <circle cx="0" cy="9" r="1.6" fill="${wifiColor}" />
+              </g>
+
+              <g direction="ltr">
+                <text
+                  x="278"
+                  y="172"
+                  text-anchor="end"
+                  font-size="12"
+                  fill="${logoColor}"
+                  font-family="sans-serif"
+                  letter-spacing="0.5"
+                  direction="ltr"
+                >
+                  switcher
+                </text>
+                <circle cx="262" cy="167" r="3.5" fill="#c0392b" />
+              </g>
 
               <line x1="20" y1="188" x2="320" y2="188" stroke="${dividerColor}" stroke-width="1" />
               <text
