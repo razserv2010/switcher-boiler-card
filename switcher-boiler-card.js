@@ -464,7 +464,7 @@ class SwitcherBoilerCard extends LitElement {
 
               <g direction="ltr">
                 <text
-                  x="275"
+                  x="300"
                   y="172"
                   text-anchor="end"
                   font-size="12"
@@ -475,7 +475,7 @@ class SwitcherBoilerCard extends LitElement {
                 >
                   switcher
                 </text>
-                <circle cx="262" cy="167" r="3.5" fill="#c0392b" />
+                <circle cx="280" cy="167" r="3.5" fill="#c0392b" />
               </g>
 
               <line x1="20" y1="188" x2="320" y2="188" stroke="${dividerColor}" stroke-width="1" />
