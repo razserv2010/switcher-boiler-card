@@ -464,7 +464,7 @@ class SwitcherBoilerCard extends LitElement {
 
               <g direction="ltr">
                 <text
-                  x="290"
+                  x="350"
                   y="172"
                   text-anchor="end"
                   font-size="12"
