@@ -164,47 +164,73 @@ class SwitcherBoilerCard extends LitElement {
         cursor: pointer;
         z-index: 5;
       }
-      .timer-menu {
-        position: absolute;
-        top: calc(100% + 10px);
-        left: 50%;
-        transform: translateX(-50%) scale(0.95);
-        width: 220px;
-        max-width: 80vw;
-        background: var(--card-background-color, #1c1c1c);
-        border: 1px solid var(--divider-color, #333);
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-        padding: 6px;
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.15s, transform 0.15s;
-        z-index: 10;
+        transition: opacity 0.15s;
       }
-      .timer-menu.open {
+      .modal-backdrop.open {
         opacity: 1;
         pointer-events: auto;
-        transform: translateX(-50%) scale(1);
+      }
+      .timer-menu {
+        width: 280px;
+        max-width: 85vw;
+        max-height: 70vh;
+        overflow-y: auto;
+        background: var(--card-background-color, #1c1c1c);
+        border: 1px solid var(--divider-color, #333);
+        border-radius: 16px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+        padding: 8px;
+        transform: scale(0.92);
+        transition: transform 0.15s;
+      }
+      .modal-backdrop.open .timer-menu {
+        transform: scale(1);
+      }
+      .timer-menu .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 10px 4px;
       }
       .timer-menu .title {
-        font-size: 12px;
-        color: var(--secondary-text-color, #999);
-        padding: 6px 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary-text-color, #fff);
       }
-      .timer-menu button {
+      .timer-menu .close-btn {
+        background: transparent;
+        border: none;
+        color: var(--secondary-text-color, #999);
+        font-size: 18px;
+        cursor: pointer;
+        padding: 4px 8px;
+        line-height: 1;
+      }
+      .timer-menu button.option {
         display: block;
         width: 100%;
         text-align: right;
-        padding: 8px 10px;
-        font-size: 13px;
+        padding: 12px 10px;
+        font-size: 14px;
         border: none;
         background: transparent;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
         color: var(--primary-text-color, #fff);
         font-family: inherit;
       }
-      .timer-menu button:hover {
+      .timer-menu button.option:hover,
+      .timer-menu button.option:active {
         background: var(--secondary-background-color, rgba(255, 255, 255, 0.08));
       }
       .timer-menu .empty {
@@ -481,7 +507,7 @@ class SwitcherBoilerCard extends LitElement {
 
               <g direction="ltr">
                 <text
-                  x="300"
+                  x="280"
                   y="172"
                   text-anchor="end"
                   font-size="12"
@@ -492,7 +518,7 @@ class SwitcherBoilerCard extends LitElement {
                 >
                   switcher
                 </text>
-                <circle cx="245" cy="167" r="3.5" fill="#c0392b" />
+                <circle cx="210" cy="167" r="3.5" fill="#c0392b" />
               </g>
 
               <line x1="20" y1="188" x2="320" y2="188" stroke="${dividerColor}" stroke-width="1" />
@@ -509,21 +535,34 @@ class SwitcherBoilerCard extends LitElement {
             </svg>
           </div>
 
-          <div class="timer-menu ${this._menuOpen ? "open" : ""}">
-            <div class="title">כיבוי אוטומטי</div>
-            ${timers.length === 0
-              ? html`<div class="empty">לא הוגדרו ישויות טיימר</div>`
-              : timers.map((t) => {
-                  const entityId = typeof t === "string" ? t : t.entity;
-                  const st = this.hass.states[entityId];
-                  const name =
-                    (typeof t === "object" && t.name) ||
-                    st?.attributes?.friendly_name ||
-                    entityId;
-                  return html`<button @click=${() => this._startTimer(entityId)}>
-                    ${name}
-                  </button>`;
-                })}
+          <div
+            class="modal-backdrop ${this._menuOpen ? "open" : ""}"
+            @click=${(e) => {
+              if (e.target === e.currentTarget) this._closeMenu();
+            }}
+          >
+            <div class="timer-menu">
+              <div class="header">
+                <span class="title">כיבוי אוטומטי</span>
+                <button class="close-btn" @click=${this._closeMenu} aria-label="סגור">✕</button>
+              </div>
+              ${timers.length === 0
+                ? html`<div class="empty">לא הוגדרו ישויות טיימר</div>`
+                : timers.map((t) => {
+                    const entityId = typeof t === "string" ? t : t.entity;
+                    const st = this.hass.states[entityId];
+                    const name =
+                      (typeof t === "object" && t.name) ||
+                      st?.attributes?.friendly_name ||
+                      entityId;
+                    return html`<button
+                      class="option"
+                      @click=${() => this._startTimer(entityId)}
+                    >
+                      ${name}
+                    </button>`;
+                  })}
+            </div>
           </div>
         </div>
       </ha-card>
