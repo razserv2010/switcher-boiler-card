@@ -377,17 +377,16 @@ class SwitcherBoilerCard extends LitElement {
     const timers = this.config.timers || [];
     const activeTimer = this._activeTimer();
     const customName = (this.config.name || "").trim();
-    const namePrefix = customName ? `${customName} ` : "";
     let statusText;
     if (activeTimer) {
       statusText =
         activeTimer.remaining !== null
-          ? `${namePrefix}הודלק ל־ ${this._fmtTime(activeTimer.remaining)}`
-          : `${namePrefix}הודלק`;
+          ? `הודלק ל־ ${this._fmtTime(activeTimer.remaining)}`
+          : `הודלק`;
     } else if (on) {
-      statusText = `${namePrefix}דולק`;
+      statusText = `דולק`;
     } else {
-      statusText = `${namePrefix}כבוי`;
+      statusText = `כבוי`;
     }
     const statusColor = dark ? "#9a9a9d" : "#6a6a64";
     const dividerColor = dark ? "#2a2a2d" : "#c8c8c2";
@@ -425,13 +424,6 @@ class SwitcherBoilerCard extends LitElement {
                   </feMerge>
                 </filter>
               </defs>
-
-              <g stroke="${crosshair}" stroke-width="1" stroke-dasharray="3 4">
-                <line x1="170" y1="52" x2="170" y2="77" />
-                <line x1="170" y1="115" x2="170" y2="140" />
-                <line x1="128" y1="96" x2="153" y2="96" />
-                <line x1="187" y1="96" x2="212" y2="96" />
-              </g>
 
               <text
                 x="316"
@@ -503,8 +495,8 @@ class SwitcherBoilerCard extends LitElement {
 
               <g direction="ltr">
                 <text
-                  x="280"
-                  y="172"
+                  x="70"
+                  y="25"
                   text-anchor="end"
                   font-size="12"
                   fill="${logoColor}"
@@ -514,7 +506,7 @@ class SwitcherBoilerCard extends LitElement {
                 >
                   switcher
                 </text>
-                <circle cx="245" cy="167" r="3.5" fill="#c0392b" />
+                <circle cx="13" cy="21" r="3.5" fill="#c0392b" />
               </g>
 
               <line x1="20" y1="188" x2="320" y2="188" stroke="${dividerColor}" stroke-width="1" />
