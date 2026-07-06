@@ -536,7 +536,7 @@ class SwitcherBoilerCard extends LitElement {
                 >
                   switcher
                 </text>
-                <circle cx="210" cy="167" r="3.5" fill="#c0392b" />
+                <circle cx="245" cy="167" r="3.5" fill="#c0392b" />
               </g>
 
               <line x1="20" y1="188" x2="320" y2="188" stroke="${dividerColor}" stroke-width="1" />
