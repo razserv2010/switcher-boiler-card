@@ -76,7 +76,7 @@ class SwitcherBoilerCard extends LitElement {
         position: relative;
         width: 100%;
         max-width: 340px;
-        aspect-ratio: 340 / 210;
+        aspect-ratio: 340 / 230;
         border-radius: 14px;
         user-select: none;
         transition: background 0.4s, box-shadow 0.4s, border-color 0.4s;
@@ -151,7 +151,7 @@ class SwitcherBoilerCard extends LitElement {
       }
       .sun-hit {
         position: absolute;
-        top: 45.7%;
+        top: 41.7%;
         left: 50%;
         width: 22%;
         aspect-ratio: 1;
@@ -345,6 +345,16 @@ class SwitcherBoilerCard extends LitElement {
     return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
   }
 
+  _measurement(entityId, fallbackUnit) {
+    if (!entityId) return null;
+    const st = this.hass?.states?.[entityId];
+    if (!st || st.state === "unavailable" || st.state === "unknown") return null;
+    const unit = st.attributes?.unit_of_measurement || fallbackUnit;
+    const num = Number(st.state);
+    const value = Number.isFinite(num) ? num.toString() : st.state;
+    return `${value} ${unit}`;
+  }
+
   render() {
     if (!this.config || !this.hass) return html``;
 
@@ -391,6 +401,10 @@ class SwitcherBoilerCard extends LitElement {
     const statusColor = dark ? "#9a9a9d" : "#6a6a64";
     const dividerColor = dark ? "#2a2a2d" : "#c8c8c2";
 
+    const powerText = this._measurement(this.config.power_entity, "W");
+    const currentText = this._measurement(this.config.current_entity, "A");
+    const powerCurrentText = [powerText, currentText].filter(Boolean).join("  •  ");
+
     return html`
       <ha-card>
         <div class="wrap" dir="ltr">
@@ -407,7 +421,7 @@ class SwitcherBoilerCard extends LitElement {
               @touchend=${this._endPress}
               @touchcancel=${this._cancelPress}
             ></button>
-            <svg viewBox="0 0 340 210">
+            <svg viewBox="0 0 340 230">
               <defs>
                 <filter id="sb-glow" x="-100%" y="-100%" width="300%" height="300%">
                   <feGaussianBlur stdDeviation="4" result="blur" />
@@ -519,6 +533,17 @@ class SwitcherBoilerCard extends LitElement {
                 font-family="sans-serif"
               >
                 ${statusText}
+              </text>
+              <text
+                x="170"
+                y="220"
+                text-anchor="middle"
+                font-size="11"
+                fill="${statusColor}"
+                font-family="sans-serif"
+                opacity="0.75"
+              >
+                ${powerCurrentText}
               </text>
             </svg>
           </div>
@@ -681,6 +706,28 @@ class SwitcherBoilerCardEditor extends LitElement {
           .hass=${this.hass}
           .value=${this._config.wifi_entity || ""}
           @value-changed=${this._valueChanged("wifi_entity")}
+          allow-custom-entity
+        ></ha-entity-picker>
+      </div>
+
+      <div class="row">
+        <label>ישות הספק - Power (אופציונלי, יחידה: W)</label>
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${this._config.power_entity || ""}
+          .includeDomains=${["sensor"]}
+          @value-changed=${this._valueChanged("power_entity")}
+          allow-custom-entity
+        ></ha-entity-picker>
+      </div>
+
+      <div class="row">
+        <label>ישות זרם - Current (אופציונלי, יחידה: A)</label>
+        <ha-entity-picker
+          .hass=${this.hass}
+          .value=${this._config.current_entity || ""}
+          .includeDomains=${["sensor"]}
+          @value-changed=${this._valueChanged("current_entity")}
           allow-custom-entity
         ></ha-entity-picker>
       </div>
