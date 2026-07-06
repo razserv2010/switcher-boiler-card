@@ -216,8 +216,6 @@ class SwitcherBoilerCard extends LitElement {
   }
 
   _isDark() {
-    if (this.config.theme === "day") return false;
-    if (this.config.theme === "night") return true;
     return !!this.hass?.themes?.darkMode;
   }
 
@@ -352,15 +350,18 @@ class SwitcherBoilerCard extends LitElement {
 
     const timers = this.config.timers || [];
     const activeTimer = this._activeTimer();
+    const customName = (this.config.name || "").trim();
+    const namePrefix = customName ? `${customName} ` : "";
     let statusText;
     if (activeTimer) {
-      statusText = activeTimer.remaining !== null
-        ? `הבוילר הודלק ל: ${activeTimer.name}  •  ${this._fmtTime(activeTimer.remaining)}`
-        : `הבוילר הודלק ל: ${activeTimer.name}`;
+      statusText =
+        activeTimer.remaining !== null
+          ? `${namePrefix}הודלק ל־ ${this._fmtTime(activeTimer.remaining)}`
+          : `${namePrefix}הודלק`;
     } else if (on) {
-      statusText = "הבוילר דולק";
+      statusText = `${namePrefix}דולק`;
     } else {
-      statusText = "הבוילר כבוי";
+      statusText = `${namePrefix}כבוי`;
     }
     const statusColor = dark ? "#9a9a9d" : "#6a6a64";
     const dividerColor = dark ? "#2a2a2d" : "#c8c8c2";
@@ -405,6 +406,22 @@ class SwitcherBoilerCard extends LitElement {
                 <line x1="128" y1="96" x2="153" y2="96" />
                 <line x1="187" y1="96" x2="212" y2="96" />
               </g>
+
+              ${customName
+                ? html`
+                    <text
+                      x="316"
+                      y="26"
+                      text-anchor="end"
+                      font-size="12"
+                      fill="${logoColor}"
+                      font-family="sans-serif"
+                      letter-spacing="0.5"
+                    >
+                      ${customName}
+                    </text>
+                  `
+                : ""}
               <g fill="${dotColor}">
                 <circle cx="136" cy="64" r="4" />
                 <circle cx="204" cy="64" r="4" />
@@ -657,16 +674,11 @@ class SwitcherBoilerCardEditor extends LitElement {
       </div>
 
       <div class="row">
-        <label>ערכת נושא</label>
-        <ha-select
-          .value=${this._config.theme || "auto"}
-          @selected=${this._valueChanged("theme")}
-          @closed=${(e) => e.stopPropagation()}
-        >
-          <mwc-list-item value="auto">אוטומטי (לפי ה-Home Assistant)</mwc-list-item>
-          <mwc-list-item value="day">יום</mwc-list-item>
-          <mwc-list-item value="night">לילה</mwc-list-item>
-        </ha-select>
+        <label>שם מותאם אישית (מוצג בפינה הימנית-עליונה ובשורת הסטטוס)</label>
+        <ha-textfield
+          .value=${this._config.name || ""}
+          @input=${this._valueChanged("name")}
+        ></ha-textfield>
       </div>
     `;
   }
