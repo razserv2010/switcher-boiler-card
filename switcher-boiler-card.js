@@ -4,7 +4,7 @@ import {
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
-const CARD_VERSION = "1.0.0";
+const CARD_VERSION = "1.0.1-TEST";
 
 console.info(
   `%c SWITCHER-BOILER-CARD %c v${CARD_VERSION} `,
@@ -433,21 +433,17 @@ class SwitcherBoilerCard extends LitElement {
                 <line x1="187" y1="96" x2="212" y2="96" />
               </g>
 
-              ${customName
-                ? html`
-                    <text
-                      x="316"
-                      y="26"
-                      text-anchor="end"
-                      font-size="12"
-                      fill="${logoColor}"
-                      font-family="sans-serif"
-                      letter-spacing="0.5"
-                    >
-                      ${customName}
-                    </text>
-                  `
-                : ""}
+              <text
+                x="316"
+                y="26"
+                text-anchor="end"
+                font-size="12"
+                fill="${logoColor}"
+                font-family="sans-serif"
+                letter-spacing="0.5"
+              >
+                ${customName}
+              </text>
               <g fill="${dotColor}">
                 <circle cx="136" cy="64" r="4" />
                 <circle cx="204" cy="64" r="4" />
