@@ -410,7 +410,7 @@ class SwitcherBoilerCard extends LitElement {
     if (activeTimer) {
       statusText =
         activeTimer.remaining !== null
-          ? `הודלק ל־ ${this._fmtTime(activeTimer.remaining)}`
+          ? `נשאר לכיבוי -  ${this._fmtTime(activeTimer.remaining)}`
           : `הודלק`;
     } else if (on) {
       statusText = `דולק`;
