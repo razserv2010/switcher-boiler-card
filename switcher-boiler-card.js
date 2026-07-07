@@ -76,7 +76,7 @@ class SwitcherBoilerCard extends LitElement {
         position: relative;
         width: 100%;
         max-width: 340px;
-        aspect-ratio: 340 / 230;
+        aspect-ratio: 340 / 238;
         border-radius: 14px;
         user-select: none;
         transition: background 0.4s, box-shadow 0.4s, border-color 0.4s;
@@ -151,7 +151,7 @@ class SwitcherBoilerCard extends LitElement {
       }
       .sun-hit {
         position: absolute;
-        top: 41.7%;
+        top: 40.3%;
         left: 50%;
         width: 22%;
         aspect-ratio: 1;
@@ -232,6 +232,15 @@ class SwitcherBoilerCard extends LitElement {
       .timer-menu button.option:hover,
       .timer-menu button.option:active {
         background: var(--secondary-background-color, rgba(255, 255, 255, 0.08));
+      }
+      .timer-menu button.option.active {
+        background: rgba(255, 91, 69, 0.12);
+        border-right: 3px solid var(--sb-red);
+        font-weight: 600;
+      }
+      .timer-menu button.option .check {
+        color: var(--sb-red);
+        margin-left: 6px;
       }
       .timer-menu .empty {
         font-size: 13px;
@@ -316,6 +325,15 @@ class SwitcherBoilerCard extends LitElement {
     super.disconnectedCallback();
   }
 
+  _parseHms(str) {
+    if (!str) return null;
+    const parts = str.split(":").map(Number);
+    if (parts.some((n) => Number.isNaN(n))) return null;
+    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    if (parts.length === 2) return parts[0] * 60 + parts[1];
+    return null;
+  }
+
   _activeTimer() {
     const timers = this.config.timers || [];
     for (const t of timers) {
@@ -333,7 +351,8 @@ class SwitcherBoilerCard extends LitElement {
         if (finishesAt) {
           remaining = Math.max(0, Math.round((finishesAt - Date.now()) / 1000));
         }
-        return { name, remaining };
+        const totalSeconds = this._parseHms(st.attributes.duration);
+        return { entityId, name, remaining, totalSeconds };
       }
     }
     return null;
@@ -405,6 +424,14 @@ class SwitcherBoilerCard extends LitElement {
     const currentText = this._measurement(this.config.current_entity, "A");
     const powerCurrentText = [powerText, currentText].filter(Boolean).join("  •  ");
 
+    let timerFraction = null;
+    if (activeTimer && activeTimer.totalSeconds && activeTimer.remaining !== null) {
+      timerFraction = Math.max(
+        0,
+        Math.min(1, activeTimer.remaining / activeTimer.totalSeconds)
+      );
+    }
+
     return html`
       <ha-card>
         <div class="wrap" dir="ltr">
@@ -421,7 +448,7 @@ class SwitcherBoilerCard extends LitElement {
               @touchend=${this._endPress}
               @touchcancel=${this._cancelPress}
             ></button>
-            <svg viewBox="0 0 340 230">
+            <svg viewBox="0 0 340 238">
               <defs>
                 <filter id="sb-glow" x="-100%" y="-100%" width="300%" height="300%">
                   <feGaussianBlur stdDeviation="4" result="blur" />
@@ -545,6 +572,24 @@ class SwitcherBoilerCard extends LitElement {
               >
                 ${powerCurrentText}
               </text>
+
+              <rect
+                x="20"
+                y="229"
+                width="300"
+                height="3"
+                rx="1.5"
+                fill="${dividerColor}"
+              />
+              <rect
+                x="20"
+                y="229"
+                width="${timerFraction !== null ? 300 * timerFraction : 0}"
+                height="3"
+                rx="1.5"
+                fill="var(--sb-red)"
+                style="transition: width 1s linear;"
+              />
             </svg>
           </div>
 
@@ -568,11 +613,13 @@ class SwitcherBoilerCard extends LitElement {
                       (typeof t === "object" && t.name) ||
                       st?.attributes?.friendly_name ||
                       entityId;
+                    const isActive =
+                      activeTimer && activeTimer.entityId === entityId;
                     return html`<button
-                      class="option"
+                      class="option ${isActive ? "active" : ""}"
                       @click=${() => this._startTimer(entityId)}
                     >
-                      ${name}
+                      ${name} ${isActive ? html`<span class="check">✓</span>` : ""}
                     </button>`;
                   })}
             </div>
