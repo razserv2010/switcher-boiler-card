@@ -4,7 +4,7 @@ import {
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
-const CARD_VERSION = "1.0.1-TEST";
+const CARD_VERSION = "1.0.2";
 
 console.info(
   `%c SWITCHER-BOILER-CARD %c v${CARD_VERSION} `,
@@ -291,7 +291,16 @@ class SwitcherBoilerCard extends LitElement {
   }
 
   _toggleBoiler() {
-    this.hass.callService("homeassistant", "toggle", {
+    const state = this.hass?.states?.[this.config.entity]?.state;
+    if (state !== "on" && state !== "off") return;
+    if (state === "off" && this.config.confirm_on === true) {
+      const message = this.config.confirmation_text?.trim() ||
+        "האם להדליק את " + (this.config.name || "המכשיר") + "?";
+      if (!window.confirm(message)) return;
+      // Do not toggle: the state may change while the confirmation is open.
+      if (this.hass?.states?.[this.config.entity]?.state !== "off") return;
+    }
+    return this.hass.callService("homeassistant", state === "on" ? "turn_off" : "turn_on", {
       entity_id: this.config.entity,
     });
   }
@@ -777,6 +786,28 @@ class SwitcherBoilerCardEditor extends LitElement {
           @value-changed=${this._valueChanged("current_entity")}
           allow-custom-entity
         ></ha-entity-picker>
+      </div>
+
+      <div class="row">
+        <label>
+          <input
+            type="checkbox"
+            .checked=${this._config.confirm_on === true}
+            @change=${(ev) => {
+              this._config = { ...this._config, confirm_on: ev.target.checked };
+              this._fire();
+            }}
+          />
+          בקשת אישור לפני הדלקה (כיבוי ללא אישור)
+        </label>
+      </div>
+      <div class="row">
+        <label>טקסט האישור (אופציונלי)</label>
+        <input
+          type="text"
+          .value=${this._config.confirmation_text || ""}
+          @input=${this._valueChanged("confirmation_text")}
+        />
       </div>
 
       <div class="row">
